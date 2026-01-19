@@ -14,7 +14,7 @@ class CategoriasModel extends BaseDbModel
         return $this->pdo->query($sql)->fetchAll();
     }
 
-    public function getById(int $id)
+    public function getById(int $id): array|false
     {
         $sql = "SELECT cat.id_categoria, cat.nombre_categoria, cat.id_padre as padre FROM categoria as cat 
             WHERE id_categoria = :id";
