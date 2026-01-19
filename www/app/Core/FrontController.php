@@ -26,6 +26,11 @@ class FrontController
             $controller->getAllCategorias();
         }, 'get');
 
+        Route::add('/categoria/(\d{1,3})', function ($id) {
+            $controller = new CategoriaController();
+            $controller->getCategoria((int)$id);
+        }, 'get');
+
         Route::run();
     }
 }

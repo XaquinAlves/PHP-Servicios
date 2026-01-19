@@ -10,13 +10,14 @@ class CategoriasModel extends BaseDbModel
 {
     public function getAllCategorias(): array
     {
-        $sql = "SELECT id_categoria, nombre_categoria, id_padre FROM categoria";
+        $sql = "SELECT cat.id_categoria, cat.nombre_categoria, cat.id_padre as padre FROM categoria as cat ";
         return $this->pdo->query($sql)->fetchAll();
     }
 
-    public function getById(int $id): array
+    public function getById(int $id)
     {
-        $sql = "SELECT id_categoria, nombre_categoria, id_padre FROM categoria WHERE id_categoria = :id";
+        $sql = "SELECT cat.id_categoria, cat.nombre_categoria, cat.id_padre as padre FROM categoria as cat 
+            WHERE id_categoria = :id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
         return $stmt->fetch();
