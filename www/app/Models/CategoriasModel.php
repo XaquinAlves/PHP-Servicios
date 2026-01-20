@@ -59,4 +59,16 @@ class CategoriasModel extends BaseDbModel
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute(['id' => $id]);
     }
+
+    public function uptadeFullCategoria(array $datos): bool
+    {
+        $sql = "UPDATE categoria SET nombre_categoria = :nombre, id_padre = :padre WHERE id_categoria = :id";
+        $params = [
+            'nombre' => $datos['categoria'],
+            'padre' => $datos['id_padre'] ?? null,
+            'id' => $datos['id']
+        ];
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute($params);
+    }
 }

@@ -10,7 +10,7 @@ use Com\Daw2\Models\CategoriasModel;
 
 class CategoriaController extends BaseController
 {
-    public function getAllCategorias()
+    public function getAllCategorias(): void
     {
         $model = new CategoriasModel();
         $respuesta = new Respuesta(200);
@@ -27,7 +27,7 @@ class CategoriaController extends BaseController
         $this->view->show('json.view.php', [ 'respuesta' => $respuesta ]);
     }
 
-    public function getCategoria($id)
+    public function getCategoria($id): void
     {
         $model = new CategoriasModel();
         $categoria = $model->getById($id);
@@ -48,7 +48,7 @@ class CategoriaController extends BaseController
         $this->view->show('json.view.php', [ 'respuesta' => $respuesta ]);
     }
 
-    public function postCategoria()
+    public function postCategoria(): void
     {
         $model = new CategoriasModel();
 
@@ -64,6 +64,10 @@ class CategoriaController extends BaseController
             $result = $model->insertCategoria($_POST);
             if ($result) {
                 $respuesta = new Respuesta(201);
+                $respuesta->setData($model->searchByNameAndFather(
+                    $_POST['categoria'],
+                    isset($_POST['id_padre']) ? (int)$_POST['id_padre'] : null
+                ));
             } else {
                 $respuesta = new Respuesta(500);
             }
@@ -72,7 +76,7 @@ class CategoriaController extends BaseController
         $this->view->show('json.view.php', [ 'respuesta' => $respuesta ]);
     }
 
-    public function deleteCategoria($id)
+    public function deleteCategoria($id): void
     {
         $model = new CategoriasModel();
         if ($model->getById($id) === false) {
@@ -99,7 +103,46 @@ class CategoriaController extends BaseController
         $this->view->show('json.view.php', ['respuesta' => $respuesta]);
     }
 
-    private function checkErrors(array $data): array
+    public function putCategoria(int $id): void
+    {
+        $model = new CategoriasModel();
+        if ($model->getById($id)) {
+            $params = $this->initBodyData();
+            $errors = $this->checkErrors($params, true);
+            if ($errors !== []) {
+                $respuesta = new Respuesta(400);
+                $respuesta->setData(array_merge($errors, $params));
+            } else {
+                if ($model->uptadeFullCategoria(array_merge($params, ['id' => $id]))) {
+                    $respuesta = new Respuesta(200);
+                    $respuesta->setData($model->getById($id));
+                } else {
+                    $respuesta = new Respuesta(500);
+                }
+            }
+        } else {
+            $respuesta = new Respuesta(404);
+        }
+        $this->view->show('json.view.php', [ 'respuesta' => $respuesta ]);
+    }
+
+    private function initBodyData(): array
+    {
+        $request = file_get_contents('php://input');
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? 'plain/text';
+        if (!empty($request)) {
+            if ($contentType === 'application/json') {
+                $postVars = json_decode($request, true);
+            } else {
+                parse_str($request, $postVars);
+            }
+            return $postVars;
+        } else {
+            return [];
+        }
+    }
+
+    private function checkErrors(array $data, ?bool $putMode = false): array
     {
         $errors = [];
         if (empty($data['categoria'])) {
@@ -120,7 +163,7 @@ class CategoriaController extends BaseController
         if ($errors === []) {
             if (
                 (new CategoriasModel())->searchByNameAndFather($data['categoria'], isset($data['id_padre']) ?
-                (int)$data['id_padre'] : null)
+                (int)$data['id_padre'] : null) && !$putMode
             ) {
                 $errors['duplicado'] = true;
             }
