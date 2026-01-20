@@ -36,6 +36,10 @@ class FrontController
             $controller->postCategoria();
         }, 'post');
 
+        Route::add('/categoria', function () {
+            $controller = new CategoriaController();
+        }, 'delete');
+
         Route::run();
     }
 }
