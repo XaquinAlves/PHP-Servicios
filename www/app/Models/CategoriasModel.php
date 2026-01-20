@@ -22,4 +22,34 @@ class CategoriasModel extends BaseDbModel
         $stmt->execute(['id' => $id]);
         return $stmt->fetch();
     }
+
+    public function insertCategoria(array $datos): bool
+    {
+        $sql = "INSERT INTO categoria (nombre_categoria, id_padre) VALUES (:nombre, :padre)";
+        $params = [
+            'nombre' => $datos['categoria'],
+            'padre' => $datos['id_padre'] ?? null
+        ];
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute($params);
+    }
+
+    public function searchByNameAndFather(string $nombre, ?int $padre = null): array|false
+    {
+        if ($padre !== null) {
+            $sql = "SELECT * FROM categoria WHERE nombre_categoria = :nombre AND id_padre = :padre";
+            $params = [
+                'nombre' => $nombre,
+                'padre' => $padre
+            ];
+        } else {
+            $sql = "SELECT * FROM categoria WHERE nombre_categoria = :nombre AND id_padre IS NULL";
+            $params = [
+                'nombre' => $nombre
+            ];
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetch();
+    }
 }

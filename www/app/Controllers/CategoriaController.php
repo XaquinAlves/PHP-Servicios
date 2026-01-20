@@ -47,4 +47,58 @@ class CategoriaController extends BaseController
         }
         $this->view->show('json.view.php', [ 'respuesta' => $respuesta ]);
     }
+
+    public function postCategoria()
+    {
+        $model = new CategoriasModel();
+
+        $errors = $this->checkErrors($_POST);
+
+        if (isset($errors['duplicado'])) {
+            $respuesta = new Respuesta(409);
+            $respuesta->setData(['BBDD' => 'La categoría ya existe']);
+        } elseif ($errors !== []) {
+            $respuesta = new Respuesta(400);
+            $respuesta->setData($errors);
+        } else {
+            $result = $model->insertCategoria($_POST);
+            if ($result) {
+                $respuesta = new Respuesta(201);
+            } else {
+                $respuesta = new Respuesta(500);
+            }
+        }
+
+        $this->view->show('json.view.php', [ 'respuesta' => $respuesta ]);
+    }
+
+    private function checkErrors(array $data): array
+    {
+        $errors = [];
+        if (empty($data['categoria'])) {
+            $errors['categoria'] = "Campo obligatorio";
+        }
+        if (isset($data['id_padre'])) {
+            if (!filter_var($data['id_padre'], FILTER_VALIDATE_INT) && $data['id_padre'] !== null) {
+                $errors['id_padre'] = "El padre debe ser un entero o null";
+            } else {
+                if ($data['id_padre'] !== null) {
+                    if (!(new CategoriasModel())->getById((int)$data['id_padre'])) {
+                        $errors['id_padre'] = 'El padre no existe';
+                    }
+                }
+            }
+        }
+
+        if ($errors === []) {
+            if (
+                (new CategoriasModel())->searchByNameAndFather($data['categoria'], isset($data['id_padre']) ?
+                (int)$data['id_padre'] : null)
+            ) {
+                $errors['duplicado'] = true;
+            }
+        }
+
+        return $errors;
+    }
 }
