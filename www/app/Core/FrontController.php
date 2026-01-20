@@ -36,8 +36,9 @@ class FrontController
             $controller->postCategoria();
         }, 'post');
 
-        Route::add('/categoria', function () {
+        Route::add('/categoria/(\d{1,3})', function ($id) {
             $controller = new CategoriaController();
+            $controller->deleteCategoria((int)$id);
         }, 'delete');
 
         Route::run();

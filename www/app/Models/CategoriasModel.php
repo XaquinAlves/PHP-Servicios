@@ -52,4 +52,11 @@ class CategoriasModel extends BaseDbModel
         $stmt->execute($params);
         return $stmt->fetch();
     }
+
+    public function deleteCategoria(int $id): bool
+    {
+        $sql = "DELETE FROM categoria WHERE id_categoria = :id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute(['id' => $id]);
+    }
 }

@@ -72,6 +72,33 @@ class CategoriaController extends BaseController
         $this->view->show('json.view.php', [ 'respuesta' => $respuesta ]);
     }
 
+    public function deleteCategoria($id)
+    {
+        $model = new CategoriasModel();
+        if ($model->getById($id) === false) {
+            $respuesta = new Respuesta(404);
+        } else {
+            $result = false;
+            try {
+                $result = $model->deleteCategoria($id);
+            } catch (\PDOException $e) {
+                if ($e->getCode() === '23000') {
+                    $respuesta = new Respuesta(409);
+                    $respuesta->setData(
+                        ['padre' => 'Esta categoria es padre de otras categorías, es necesario eliminarlas primero ']
+                    );
+                } else {
+                    $respuesta = new Respuesta(500);
+                }
+            }
+            if ($result) {
+                $respuesta = new Respuesta(200);
+            }
+        }
+
+        $this->view->show('json.view.php', ['respuesta' => $respuesta]);
+    }
+
     private function checkErrors(array $data): array
     {
         $errors = [];
