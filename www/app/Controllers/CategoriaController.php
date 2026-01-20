@@ -16,12 +16,7 @@ class CategoriaController extends BaseController
         $respuesta = new Respuesta(200);
         $listaCategorias = $model->getAllCategorias();
         foreach ($listaCategorias as &$categoria) {
-            $padre = $categoria['padre'];
-            while ($padre !== null) {
-                $padre = $model->getById((int)$padre);
-                $categoria['padre'] = $padre;
-                $padre = $padre['padre'];
-            }
+            $categoria = $this->getFullCategoria((int)$categoria['id_categoria']);
         }
         $respuesta->setData($listaCategorias);
         $this->view->show('json.view.php', [ 'respuesta' => $respuesta ]);
@@ -29,23 +24,29 @@ class CategoriaController extends BaseController
 
     public function getCategoria($id): void
     {
-        $model = new CategoriasModel();
-        $categoria = $model->getById($id);
+        $categoria = $this->getFullCategoria($id);
         if ($categoria) {
-            $padre = $categoria['padre'];
-
-            while ($padre !== null) {
-                $padre = $model->getById((int)$padre);
-                $categoria['padre'] = $padre;
-                $padre = $padre['padre'];
-            }
-
             $respuesta = new Respuesta(200);
             $respuesta->setData($categoria);
         } else {
             $respuesta = new Respuesta(404);
         }
         $this->view->show('json.view.php', [ 'respuesta' => $respuesta ]);
+    }
+
+    private function getFullCategoria($id): array|false
+    {
+        $model = new CategoriasModel();
+        $categoria = $model->getById($id);
+        if ($categoria === false) {
+            return false;
+        }
+        if (is_null($categoria['padre'])) {
+            return $categoria;
+        } else {
+            $categoria['padre'] = $this->getFullCategoria((int)$categoria['padre']);
+            return $categoria;
+        }
     }
 
     public function postCategoria(): void
