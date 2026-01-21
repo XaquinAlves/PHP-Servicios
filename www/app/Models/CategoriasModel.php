@@ -69,6 +69,10 @@ class CategoriasModel extends BaseDbModel
             'id' => $datos['id']
         ];
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute($params);
+        if ($stmt->execute($params)) {
+            return $stmt->rowCount() == 1;
+        } else {
+            return false;
+        }
     }
 }

@@ -80,28 +80,21 @@ class CategoriaController extends BaseController
     public function deleteCategoria($id): void
     {
         $model = new CategoriasModel();
-        if ($model->getById($id) === false) {
-            $respuesta = new Respuesta(404);
-        } else {
-            $result = false;
-            try {
-                $result = $model->deleteCategoria($id);
-            } catch (\PDOException $e) {
-                if ($e->getCode() === '23000') {
-                    $respuesta = new Respuesta(409);
-                    $respuesta->setData(
-                        ['padre' => 'Esta categoria es padre de otras categorías, es necesario eliminarlas primero ']
-                    );
-                } else {
-                    $respuesta = new Respuesta(500);
-                }
-            }
-            if ($result) {
-                $respuesta = new Respuesta(200);
+        try {
+            $result = $model->deleteCategoria($id);
+            $respuesta = new Respuesta($result ? 200 : 404);
+        } catch (\PDOException $e) {
+            if ($e->getCode() === '23000') {
+                $respuesta = new Respuesta(409);
+                $respuesta->setData(
+                    ['padre' => 'Esta categoria es padre de otras categorías, es necesario eliminarlas primero ']
+                );
+            } else {
+                throw $e;
             }
         }
 
-        $this->view->show('json.view.php', ['respuesta' => $respuesta]);
+            $this->view->show('json.view.php', ['respuesta' => $respuesta]);
     }
 
     public function putCategoria(int $id): void
