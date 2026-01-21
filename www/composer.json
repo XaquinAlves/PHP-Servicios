@@ -18,7 +18,8 @@
         "guzzlehttp/guzzle": "^7.9",
         "ext-openssl": "*",
         "ext-gd": "*",
-      "ext-json": "*"
+      "ext-json": "*",
+        "adhocore/jwt": "^1.1"
     },
     "extra": {
         "google/apiclient-services": [

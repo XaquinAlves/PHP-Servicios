@@ -64,6 +64,10 @@ class ComposerStaticInit5d7da4bbdb0c2f1085dfb58b2b1970a0
         array (
             'Com\\Daw2\\' => 9,
         ),
+        'A' =>
+        array (
+            'Ahc\\Jwt\\' => 8,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -151,6 +155,10 @@ class ComposerStaticInit5d7da4bbdb0c2f1085dfb58b2b1970a0
         'Com\\Daw2\\' =>
         array (
             0 => __DIR__ . '/../..' . '/app',
+        ),
+        'Ahc\\Jwt\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/adhocore/jwt/src',
         ),
     );
 
