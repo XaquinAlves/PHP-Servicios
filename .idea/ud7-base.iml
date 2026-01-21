@@ -30,6 +30,7 @@
       <excludeFolder url="file://$MODULE_DIR$/www/vendor/symfony/polyfill-mbstring" />
       <excludeFolder url="file://$MODULE_DIR$/www/vendor/symfony/polyfill-php80" />
       <excludeFolder url="file://$MODULE_DIR$/www/vendor/vlucas/phpdotenv" />
+      <excludeFolder url="file://$MODULE_DIR$/www/vendor/adhocore/jwt" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
