@@ -3,6 +3,7 @@
 namespace Com\Daw2\Core;
 
 use Com\Daw2\Controllers\CategoriaController;
+use Com\Daw2\Controllers\ProveedorController;
 use Steampixel\Route;
 
 class FrontController
@@ -45,6 +46,11 @@ class FrontController
             $controller = new CategoriaController();
             $controller->putCategoria((int)$id);
         }, 'put');
+
+        Route::add('/proveedor', function () {
+            $controller = new ProveedorController();
+            $controller->getAllProveedores();
+        }, 'get');
 
         Route::run();
     }
