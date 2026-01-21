@@ -102,14 +102,14 @@ class CategoriaController extends BaseController
         $model = new CategoriasModel();
         if ($model->getById($id)) {
             $params = array_merge($this->initBodyData(), ['id' => $id]);
-            $errors = $this->checkErrors($params, true);
+            $errors = $this->checkErrors($params, $id);
             if ($errors !== []) {
                 if (isset($errors['duplicado'])) {
                     $respuesta = new Respuesta(409);
                     $respuesta->setData(["Duplicado" => "Existe otra categoria con esos datos"]);
                 } else {
                     $respuesta = new Respuesta(400);
-                    $respuesta->setData(array_merge($errors, $params));
+                    $respuesta->setData($errors);
                 }
             } else {
                 if ($model->uptadeFullCategoria($params)) {
@@ -141,7 +141,7 @@ class CategoriaController extends BaseController
         }
     }
 
-    private function checkErrors(array $data, ?bool $putMode = false): array
+    private function checkErrors(array $data, ?int $id = null): array
     {
         $errors = [];
         $model = new CategoriasModel();
@@ -153,7 +153,9 @@ class CategoriaController extends BaseController
                 $errors['id_padre'] = "El padre debe ser un entero o null";
             } else {
                 if ($data['id_padre'] !== null) {
-                    if (!$model->getById((int)$data['id_padre'])) {
+                    if ($id !== null && $id === (int)$data['id_padre']) {
+                        $errors['id_padre'] = 'No se puede ser su propio padre';
+                    } elseif ($model->getById((int)$data['id_padre']) === false) {
                         $errors['id_padre'] = 'El padre no existe';
                     }
                 }
@@ -164,11 +166,14 @@ class CategoriaController extends BaseController
             $duplicado = $model->searchByNameAndFather($data['categoria'], isset($data['id_padre']) ?
                 (int)$data['id_padre'] : null);
             if ($duplicado !== false) {
-                if (!$putMode || (int)$duplicado['id_categoria'] !== (int)$data['id']) {
+                if ($id !== null && (int)$duplicado['id_categoria'] !== (int)$data['id']) {
+                    $errors['duplicado'] = true;
+                } elseif ($id === null) {
                     $errors['duplicado'] = true;
                 }
             }
         }
+
         return $errors;
     }
 }
