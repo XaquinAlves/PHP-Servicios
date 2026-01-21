@@ -101,13 +101,18 @@ class CategoriaController extends BaseController
     {
         $model = new CategoriasModel();
         if ($model->getById($id)) {
-            $params = $this->initBodyData();
+            $params = array_merge($this->initBodyData(), ['id' => $id]);
             $errors = $this->checkErrors($params, true);
             if ($errors !== []) {
-                $respuesta = new Respuesta(400);
-                $respuesta->setData(array_merge($errors, $params));
+                if (isset($errors['duplicado'])) {
+                    $respuesta = new Respuesta(409);
+                    $respuesta->setData(["Duplicado" => "Existe otra categoria con esos datos"]);
+                } else {
+                    $respuesta = new Respuesta(400);
+                    $respuesta->setData(array_merge($errors, $params));
+                }
             } else {
-                if ($model->uptadeFullCategoria(array_merge($params, ['id' => $id]))) {
+                if ($model->uptadeFullCategoria($params)) {
                     $respuesta = new Respuesta(200);
                     $respuesta->setData($model->getById($id));
                 } else {
@@ -139,6 +144,7 @@ class CategoriaController extends BaseController
     private function checkErrors(array $data, ?bool $putMode = false): array
     {
         $errors = [];
+        $model = new CategoriasModel();
         if (empty($data['categoria'])) {
             $errors['categoria'] = "Campo obligatorio";
         }
@@ -147,7 +153,7 @@ class CategoriaController extends BaseController
                 $errors['id_padre'] = "El padre debe ser un entero o null";
             } else {
                 if ($data['id_padre'] !== null) {
-                    if (!(new CategoriasModel())->getById((int)$data['id_padre'])) {
+                    if (!$model->getById((int)$data['id_padre'])) {
                         $errors['id_padre'] = 'El padre no existe';
                     }
                 }
@@ -155,14 +161,14 @@ class CategoriaController extends BaseController
         }
 
         if ($errors === []) {
-            if (
-                (new CategoriasModel())->searchByNameAndFather($data['categoria'], isset($data['id_padre']) ?
-                (int)$data['id_padre'] : null) && !$putMode
-            ) {
-                $errors['duplicado'] = true;
+            $duplicado = $model->searchByNameAndFather($data['categoria'], isset($data['id_padre']) ?
+                (int)$data['id_padre'] : null);
+            if ($duplicado !== false) {
+                if (!$putMode || (int)$duplicado['id_categoria'] !== (int)$data['id']) {
+                    $errors['duplicado'] = true;
+                }
             }
         }
-
         return $errors;
     }
 }
