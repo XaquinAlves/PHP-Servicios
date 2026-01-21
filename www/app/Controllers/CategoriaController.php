@@ -82,7 +82,7 @@ class CategoriaController extends BaseController
         $model = new CategoriasModel();
         try {
             $result = $model->deleteCategoria($id);
-            $respuesta = new Respuesta($result ? 200 : 404);
+            $respuesta = new Respuesta($result === false ? 404 : 200);
         } catch (\PDOException $e) {
             if ($e->getCode() === '23000') {
                 $respuesta = new Respuesta(409);

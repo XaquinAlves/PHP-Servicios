@@ -57,7 +57,11 @@ class CategoriasModel extends BaseDbModel
     {
         $sql = "DELETE FROM categoria WHERE id_categoria = :id";
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute(['id' => $id]);
+        if ($stmt->execute(["id" => $id])) {
+            return $stmt->rowCount() == 1;
+        } else {
+            return false;
+        }
     }
 
     public function uptadeFullCategoria(array $datos): bool
@@ -69,10 +73,6 @@ class CategoriasModel extends BaseDbModel
             'id' => $datos['id']
         ];
         $stmt = $this->pdo->prepare($sql);
-        if ($stmt->execute($params)) {
-            return $stmt->rowCount() == 1;
-        } else {
-            return false;
-        }
+        return $stmt->execute($params);
     }
 }
