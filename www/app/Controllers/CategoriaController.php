@@ -57,7 +57,7 @@ class CategoriaController extends BaseController
 
         if (isset($errors['duplicado'])) {
             $respuesta = new Respuesta(409);
-            $respuesta->setData(['BBDD' => 'La categoría ya existe']);
+            $respuesta->setData(['Duplicado' => 'La categoría ya existe']);
         } elseif ($errors !== []) {
             $respuesta = new Respuesta(400);
             $respuesta->setData($errors);
