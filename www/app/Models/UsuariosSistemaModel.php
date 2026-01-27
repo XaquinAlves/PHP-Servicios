@@ -16,7 +16,7 @@ class UsuariosSistemaModel extends BaseDbModel
         $sql = "SELECT * FROM ud7.usuario_sistema WHERE email = :email";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['email' => $email]);
-        return $stmt->fetchAll();
+        return $stmt->fetch();
     }
 
     public function findById(int $id): array|false
