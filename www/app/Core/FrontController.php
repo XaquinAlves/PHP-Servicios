@@ -6,6 +6,7 @@ use Ahc\Jwt\JWT;
 use Com\Daw2\Controllers\CategoriaController;
 use Com\Daw2\Controllers\ProveedorController;
 use Com\Daw2\Controllers\UsuariosSistemaController;
+use Com\Daw2\Libraries\JWTHelper;
 use Com\Daw2\Libraries\JwtTool;
 use Com\Daw2\Models\UsuariosSistemaModel;
 use Steampixel\Route;
@@ -17,8 +18,7 @@ class FrontController
     {
         if (JwtTool::requestHasToken()) {
             $token = JwtTool::getBearerToken();
-            $jwt = new JWT($_ENV['jwt.secret'], 'HS256', 1800, 10);
-            $payload = $jwt->decode($token);
+            $payload = (new JWTHelper())->decodeToken($token);
             self::$user = (new UsuariosSistemaModel())->findById($payload['id_usuario']);
         }
         Route::add('/login', function () {
